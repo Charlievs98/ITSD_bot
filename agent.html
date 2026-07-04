@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Service Desk AI Triage Sandbox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-900 h-screen w-screen overflow-hidden flex flex-col text-slate-100">
+
+    <header class="bg-slate-950 border-b border-slate-800 px-6 py-4 flex items-center justify-between shadow-md z-10 shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="bg-emerald-500/10 border border-emerald-500/30 p-2 rounded-xl text-emerald-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 4h10a3 3 0 013 3v10a3 3 0 01-3 3H7a3 3 0 01-3-3V7a3 3 0 013-3z" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-md font-bold tracking-tight text-white flex items-center space-x-2">
+                    <span>ITSM AI Flow Engine Simulator</span>
+                </h1>
+                <p class="text-xs text-slate-400">Interactive testing environment mapping Bot ➔ L1 ➔ L2 workflows</p>
+            </div>
+        </div>
+        <div class="text-xs bg-slate-900 border border-slate-800 text-slate-400 px-3 py-1.5 rounded-lg mono">
+            SYSTEM_YEAR: 2026
+        </div>
+    </header>
+
+    <main class="flex flex-1 overflow-hidden relative">
+        
+        <section class="w-80 lg:w-96 bg-slate-950 border-r border-slate-800 flex flex-col h-full shrink-0">
+            <div class="p-4 border-b border-slate-800 bg-slate-950/50">
+                <button onclick="createNewTicket()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded-xl transition text-xs shadow-sm flex items-center justify-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                    <span>File New Employee Issue</span>
+                </button>
+            </div>
+            
+            <div id="ticket-list" class="flex-1 overflow-y-auto p-2 space-y-1.5 bg-slate-950/20">
+                </div>
+        </section>
+
+        <section class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-slate-900">
+            
+            <div class="flex-1 flex flex-col h-full min-w-0 bg-slate-900/40 border-r border-slate-800">
+                
+                <div class="p-4 border-b border-slate-800 bg-slate-900 flex justify-between items-center shrink-0">
+                    <div>
+                        <div id="active-ticket-id" class="text-xs text-emerald-400 font-mono font-bold">---</div>
+                        <h2 id="active-ticket-title" class="text-sm font-semibold text-slate-200 truncate max-w-md">No Active Ticket Selected</h2>
+                    </div>
+                    <div id="active-ticket-badge"></div>
+                </div>
+
+                <div id="chat-thread" class="flex-1 overflow-y-auto p-4 space-y-4">
+                    </div>
+
+                <div class="p-4 border-t border-slate-800 bg-slate-950/60 shrink-0 shadow-2xl">
+                    <form id="chat-form" onsubmit="handleEmployeeMessage(event)" class="flex space-x-2">
+                        <input type="text" id="employee-input" autocomplete="off" placeholder="Type a message to reply back to the system..." class="flex-1 bg-slate-900 border border-slate-700 text-slate-100 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 transition disabled:bg-slate-950 disabled:text-slate-600 disabled:border-slate-800 disabled:cursor-not-allowed">
+                        <button type="submit" id="submit-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl px-4 py-2.5 text-xs font-semibold transition disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed">
+                            Send Message
+                        </button>
+                    </form>
+                    <div class="mt-2 flex justify-between items-center text-[11px] text-slate-500 px-1">
+                        <span>Heuristic Sandbox Processing Node Enabled</span>
+                        <span id="typing-indicator" class="text-emerald-400 animate-pulse hidden">Bot is triaging system logs...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="simulator-drawer" class="w-full lg:w-[420px] bg-slate-950 border-t lg:border-t-0 border-slate-800 flex flex-col h-1/2 lg:h-full overflow-hidden">
+                <div class="bg-slate-900 p-3 flex justify-between items-center border-b border-slate-800 shrink-0">
+                    <span class="text-xs font-bold text-slate-300 tracking-wider uppercase flex items-center space-x-1.5">
+                        <span class="h-2 w-2 rounded-full bg-blue-400"></span>
+                        <span>Operator / Diagnostic Portal</span>
+                    </span>
+                    <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">FLOW_V2</span>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-3">
+                        <h4 class="font-bold text-slate-300 uppercase tracking-tight text-[11px]">Simulate Workflow Routing States</h4>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="btn-to-l1" onclick="routeTicketTo('OPEN - L1 QUEUE')" class="bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 p-2 rounded text-left transition font-medium">
+                                ➔ Escalate to L1 Agent
+                            </button>
+                            <button id="btn-to-l2" onclick="routeTicketTo('IN PROGRESS - L2')" class="bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-purple-300 p-2 rounded text-left transition font-medium">
+                                ➔ Escalate to L2 Eng
+                            </button>
+                        </div>
+                        
+                        <div class="pt-2 border-t border-slate-800 space-y-2">
+                            <label class="block font-semibold text-slate-400">Inject Human Agent/Engineer Message:</label>
+                            <textarea id="agent-message-input" rows="2" placeholder="Provide fix instructions to feed back to employee..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-100 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"></textarea>
+                            <div class="flex space-x-2">
+                                <button onclick="sendAgentResponse()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 px-3 rounded font-semibold text-center transition">
+                                    Send Override Message
+                                </button>
+                                <button onclick="resolveTicketAction()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 rounded text-center transition">
+                                    Resolve & Log to KB
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-[10px] text-slate-500 font-bold tracking-wider uppercase mb-1">Live Engine Telemetry JSON</div>
+                        <pre id="telemetry-json" class="bg-slate-900 p-3 rounded-xl text-emerald-400 font-mono text-[11px] overflow-x-auto max-h-64 border border-slate-800 whitespace-pre-wrap"></pre>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // Database simulation representation mapping back to the diagram states
+        let tickets = [
+            {
+                id: "ITS-2026-001",
+                title: "VPN handshake dropping continually",
+                status: "AI TRIAGE",
+                timestamp: "14:15",
+                messages: [
+                    { role: "employee", text: "Can't maintain persistent connections to Tokyo region mirror via pulse access client.", time: "14:15" },
+                    { role: "bot", text: "AI Triage Bot scanning knowledge base index... Check if client certificates require renewal under section 2. Did this help?", time: "14:16" }
+                ],
+                kbUpdated: false
+            },
+            {
+                id: "ITS-2026-002",
+                title: "AWS Provisioning Pipeline Broken",
+                status: "OPEN - L1 QUEUE",
+                timestamp: "13:20",
+                messages: [
+                    { role: "employee", text: "Terraform apply is failing with structural permission errors on S3 block public access modules.", time: "13:10" },
+                    { role: "bot", text: "Checking Known Fix Databases... No matched patterns identified. Creating ticket.", time: "13:11" },
+                    { role: "system", text: "Ticket routed automatically to Open L1 Queue. System Summary Context generated for agent visibility.", time: "13:12" },
+                    { role: "agent-l1", text: "Hi there, I am reviewing your configuration payload parameters. Can you provide the stack debug trace?", time: "13:20" }
+                ],
+                kbUpdated: false
+            },
+            {
+                id: "ITS-2026-003",
+                title: "Laptop screen flickering after update",
+                status: "CLOSED",
+                timestamp: "10:05",
+                messages: [
+                    { role: "employee", text: "Ever since firmware push patch v4 my internal display flashes grey lines.", time: "09:50" },
+                    { role: "bot", text: "Known fix detected: Roll back Intel Iris driver configuration matrices to structural package stable 2.4. Step-by-step fix sent.", time: "09:51" },
+                    { role: "employee", text: "Perfect, running the rollback fixed it completely!", time: "10:05" }
+                ],
+                kbUpdated: true
+            }
+        ];
+
+        let activeTicketId = "ITS-2026-001";
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTicketQueue();
+            loadActiveTicket();
+        });
+
+        function renderTicketQueue() {
+            const queueEl = document.getElementById('ticket-list');
+            queueEl.innerHTML = "";
+
+            // Flowchart logic tracking state prioritization
+            const statePriority = {
+                "IN PROGRESS - L2": 4,
+                "OPEN - L1 QUEUE": 3,
+                "AI TRIAGE": 2,
+                "CLOSED": 1,
+                "AUTO-CLOSED": 1
+            };
+
+            const sorted = [...tickets].sort((a, b) => {
+                if (statePriority[a.status] !== statePriority[b.status]) {
+                    return statePriority[b.status] - statePriority[a.status];
+                }
+                return b.id.localeCompare(a.id);
+            });
+
+            sorted.forEach(t => {
+                const isActive = t.id === activeTicketId;
+                let badgeColor = "bg-slate-800 text-slate-400 border-slate-700";
+                
+                if (t.status === "AI TRIAGE") badgeColor = "bg-emerald-950 text-emerald-400 border-emerald-800/40";
+                if (t.status === "OPEN - L1 QUEUE") badgeColor = "bg-blue-950 text-blue-400 border-blue-900/40";
+                if (t.status === "IN PROGRESS - L2") badgeColor = "bg-purple-950 text-purple-400 border-purple-900/40 animate-pulse";
+                if (t.status.startsWith("CLOSED")) badgeColor = "bg-slate-900 text-slate-500 border-slate-800";
+
+                const card = document.createElement('div');
+                card.className = `p-3 m-1 rounded-xl cursor-pointer border transition flex flex-col space-y-2 ${isActive ? 'bg-slate-900 border-slate-700 ring-1 ring-emerald-500/20' : 'bg-transparent border-transparent hover:bg-slate-900/40'}`;
+                card.setAttribute('onclick', `selectTicket('${t.id}')`);
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start space-x-2">
+                        <h4 class="text-xs font-semibold text-slate-200 truncate flex-1">${escapeHtml(t.title)}</h4>
+                        <span class="text-[10px] text-slate-500 mono shrink-0">${t.timestamp}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px]">
+                        <span class="mono font-bold text-slate-400">${t.id}</span>
+                        <span class="font-bold px-2 py-0.5 rounded border uppercase tracking-wider text-[9px] ${badgeColor}">${t.status}</span>
+                    </div>
+                `;
+                queueEl.appendChild(card);
+            });
+        }
+
+        function selectTicket(id) {
+            activeTicketId = id;
+            renderTicketQueue();
+            loadActiveTicket();
+        }
+
+        function createNewTicket() {
+            const nextIndex = tickets.length + 1;
+            const id = `ITS-2026-${String(nextIndex).padStart(3, '0')}`;
+            const newTicket = {
+                id: id,
+                title: "Unclassified System Disruption",
+                status: "AI TRIAGE",
+                timestamp: getClockTime(),
+                messages: [],
+                kbUpdated: false
+            };
+            tickets.unshift(newTicket);
+            activeTicketId = id;
+            renderTicketQueue();
+            loadActiveTicket();
+        }
+
+        function loadActiveTicket() {
+            const ticket = tickets.find(t => t.id === activeTicketId);
+            const thread = document.getElementById('chat-thread');
+            const empInput = document.getElementById('employee-input');
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (!ticket) return;
+
+            document.getElementById('active-ticket-id').textContent = ticket.id;
+            document.getElementById('active-ticket-title').textContent = ticket.title;
+            
+            // Build historical stream bubbles
+            thread.innerHTML = "";
+            ticket.messages.forEach(m => {
+                const wrapper = document.createElement('div');
+                wrapper.className = "flex flex-col max-w-[85%] transition-all ";
+                
+                if (m.role === 'employee') {
+                    wrapper.className += " ml-auto items-end";
+                    wrapper.innerHTML = `
+                        <span class="text-[10px] text-slate-500 font-mono mb-1">${m.time} • Employee</span>
+                        <div class="bg-emerald-600 text-white text-xs px-3.5 py-2.5 rounded-2xl rounded-tr-none shadow-md">${escapeHtml(m.text)}</div>
+                    `;
+                } else {
+                    wrapper.className += " mr-auto items-start";
+                    let roleLabel = "AI Triage Engine";
+                    let bgStyle = "bg-slate-800 text-slate-200 border border-slate-700/60";
+                    
+                    if (m.role === 'agent-l1') { roleLabel = "L1 Help Desk Agent"; bgStyle = "bg-blue-950/40 text-blue-200 border border-blue-900/60"; }
+                    if (m.role === 'engineer-l2') { roleLabel = "L2 Core Engineer"; bgStyle = "bg-purple-950/40 text-purple-200 border border-purple-900/60 font-medium"; }
+                    if (m.role === 'system') { roleLabel = "System Routing"; bgStyle = "bg-slate-950 text-slate-400 border border-slate-800 text-[11px] italic"; }
+
+                    wrapper.innerHTML = `
+                        <span class="text-[10px] text-slate-500 font-mono mb-1">${m.time} • ${roleLabel}</span>
+                        <div class="${bgStyle} text-xs px-3.5 py-2.5 rounded-2xl rounded-tl-none shadow-md leading-relaxed">${escapeHtml(m.text)}</div>
+                    `;
+                }
+                thread.appendChild(wrapper);
+            });
+
+            setTimeout(() => { thread.scrollTop = thread.scrollHeight; }, 20);
+
+            // Interface protection states lockouts based on resolution loops
+            if (ticket.status.startsWith("CLOSED") || ticket.status === "AUTO-CLOSED") {
+                empInput.disabled = true;
+                submitBtn.disabled = true;
+                empInput.placeholder = "This incident lifecycle state is archived/closed.";
+            } else {
+                empInput.disabled = false;
+                submitBtn.disabled = false;
+                empInput.placeholder = "Type your query to respond back to the support node...";
+            }
+
+            // Sync diagnostic panel live data matrix
+            syncTelemetryJSON(ticket);
+        }
+
+        function handleEmployeeMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('employee-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const ticket = tickets.find(t => t.id === activeTicketId);
+            if (!ticket) return;
+
+            if (ticket.title === "Unclassified System Disruption") {
+                ticket.title = text.split(" ").slice(0, 5).join(" ") + (text.split(" ").length > 5 ? "..." : "");
+            }
+
+            const time = getClockTime();
+            ticket.messages.push({ role: "employee", text: text, time: time });
+            ticket.timestamp = time;
+            
+            input.value = "";
+            loadActiveTicket();
+
+            // AI Triage Bot response loop automation
+            if (ticket.status === "AI TRIAGE") {
+                document.getElementById('typing-indicator').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('typing-indicator').classList.add('hidden');
+                    const botTime = getClockTime();
+                    
+                    // Simple logic test matching diagram bypass
+                    if (text.toLowerCase().includes("access") || text.toLowerCase().includes("override") || ticket.messages.length > 4) {
+                        ticket.status = "OPEN - L1 QUEUE";
+                        ticket.messages.push({ role: "system", text: "Pattern Unrecognized / Verification Required Exception. Automatic creation of ticket logging incident to Level-1 Support Queue.", time: botTime });
+                    } else {
+                        ticket.messages.push({ role: "bot", text: "Based on knowledge base indexing profiles: Please execute structural clear logs commands. Did this help confirm resolution?", time: botTime });
+                    }
+                    renderTicketQueue();
+                    loadActiveTicket();
+                }, 800);
+            }
+        }
+
+        // Backstage Simulation Routing Blocks
+        function routeTicketTo(targetState) {
+            const ticket = tickets.find(t => t.id === activeTicketId);
+            if (!ticket) return;
+
+            ticket.status = targetState;
+            ticket.timestamp = getClockTime();
+            ticket.messages.push({ role: "system", text: `Manual operator workflow override: Route item status explicitly to [${targetState}].`, time: getClockTime() });
+            
+            renderTicketQueue();
+            loadActiveTicket();
+        }
+
+        function sendAgentResponse() {
+            const input = document.getElementById('agent-message-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const ticket = tickets.find(t => t.id === activeTicketId);
+            if (!ticket) return;
+
+            const role = ticket.status === "IN PROGRESS - L2" ? "engineer-l2" : "agent-l1";
+            ticket.messages.push({ role: role, text: text, time: getClockTime() });
+            ticket.timestamp = getClockTime();
+            
+            input.value = "";
+            loadActiveTicket();
+        }
+
+        function resolveTicketAction() {
+            const ticket = tickets.find(t => t.id === activeTicketId);
+            if (!ticket) return;
+
+            ticket.status = "CLOSED";
+            ticket.kbUpdated = true;
+            ticket.timestamp = getClockTime();
+            ticket.messages.push({ role: "system", text: "Incident resolved successfully. Diagnostic fix steps re-indexed and pushed into Global Knowledge Base.", time: getClockTime() });
+            
+            renderTicketQueue();
+            loadActiveTicket();
+        }
+
+        function syncTelemetryJSON(ticket) {
+            const telemetry = {
+                flow_engine_ticket_id: ticket.id,
+                current_flowchart_node: ticket.status,
+                knowledge_base_hit: ticket.status === "CLOSED" && ticket.kbUpdated,
+                diagnostic_payload: {
+                    total_messages_logged: ticket.messages.length,
+                    requires_tier_2_engineering: ticket.status === "IN PROGRESS - L2",
+                    auto_close_eligible_48hr: ticket.status === "OPEN - L1 QUEUE"
+                },
+                history_chain: ticket.messages
+            };
+            document.getElementById('telemetry-json').textContent = JSON.stringify(telemetry, null, 2);
+        }
+
+        function getClockTime() {
+            const d = new Date();
+            return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
